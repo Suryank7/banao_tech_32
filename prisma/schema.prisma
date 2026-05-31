@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  name        String
+  role        Role     @default(CANDIDATE)
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  candidateSessions  InterviewSession[] @relation("CandidateSessions")
+  recruiterSessions  InterviewSession[] @relation("RecruiterSessions")
+}
+
+enum Role {
+  CANDIDATE
+  RECRUITER
+  ADMIN
+}
+
+model InterviewSession {
+  id              String        @id @default(uuid())
+  candidateId     String
+  recruiterId     String?
+  jobTitle        String
+  jobDescription  String        @db.Text
+  resumeUrl       String?
+  resumeText      String?       @db.Text
+  status          SessionStatus @default(PENDING)
+  currentQuestion Int           @default(0)
+  totalQuestions  Int           @default(5)
+  sessionData     Json?         // Stores current state for reconnection
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  candidate       User          @relation("CandidateSessions", fields: [candidateId], references: [id])
+  recruiter       User?         @relation("RecruiterSessions", fields: [recruiterId], references: [id])
+  chunks          MediaChunk[]
+  transcript      Transcript?
+  evaluation      Evaluation?
+  questions       Question[]
+  proctoringFlags ProctoringFlag[]
+}
+
+enum SessionStatus {
+  PENDING
+  HARDWARE_CHECK
+  IN_PROGRESS
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model MediaChunk {
+  id            String   @id @default(uuid())
+  sessionId     String
+  chunkIndex    Int
+  s3Key         String
+  size          Int
+  duration      Float?
+  mimeType      String   @default("video/webm")
+  questionIndex Int
+  isCorrupted   Boolean  @default(false)
+  uploadedAt    DateTime @default(now())
+
+  session       InterviewSession @relation(fields: [sessionId], references: [id])
+
+  @@unique([sessionId, chunkIndex])
+  @@index([sessionId])
+}
+
+model Transcript {
+  id          String   @id @default(uuid())
+  sessionId   String   @unique
+  fullText    String   @db.Text
+  segments    Json
+  language    String   @default("en")
+  confidence  Float
+  mergedS3Key String?
+  createdAt   DateTime @default(now())
+
+  session     InterviewSession @relation(fields: [sessionId], references: [id])
+}
+
+model Question {
+  id            String   @id @default(uuid())
+  sessionId     String
+  questionIndex Int
+  questionText  String   @db.Text
+  questionType  String
+  expectedTopics String[]
+  createdAt     DateTime @default(now())
+
+  session       InterviewSession @relation(fields: [sessionId], references: [id])
+
+  @@unique([sessionId, questionIndex])
+}
+
+model Evaluation {
+  id                  String   @id @default(uuid())
+  sessionId           String   @unique
+  technicalScore      Float
+  communicationScore  Float
+  overallScore        Float
+  nextBestAction      String
+  explanation         String   @db.Text
+  questionScores      Json
+  strengths           String[]
+  weaknesses          String[]
+  confidence          Float
+  createdAt           DateTime @default(now())
+
+  session             InterviewSession @relation(fields: [sessionId], references: [id])
+}
+
+model ProctoringFlag {
+  id          String   @id @default(uuid())
+  sessionId   String
+  type        String
+  timestamp   DateTime
+  duration    Float?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  session     InterviewSession @relation(fields: [sessionId], references: [id])
+
+  @@index([sessionId])
+}
