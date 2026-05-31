@@ -23,7 +23,7 @@ export function useMediaRecorder(sessionId: string, socketRef: React.MutableRefO
         const reader = new FileReader();
         reader.onload = () => {
           if (reader.result) {
-            socketRef.current.emit('media-chunk', {
+            socketRef.current?.emit('media-chunk', {
               sessionId,
               chunkIndex: chunkIndexRef.current++,
               questionIndex: currentQuestionRef.current,
