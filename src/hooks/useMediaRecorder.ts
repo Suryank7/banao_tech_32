@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
+import type { Socket } from 'socket.io-client';
 
-export function useMediaRecorder(sessionId: string, socketRef: React.MutableRefObject<any>) {
+export function useMediaRecorder(sessionId: string, socketRef: React.MutableRefObject<Socket | null>) {
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunkIndexRef = useRef(0);

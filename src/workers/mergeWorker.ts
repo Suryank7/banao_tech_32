@@ -1,8 +1,6 @@
 import { Worker } from 'bullmq';
 import { connection } from '../lib/redis';
 import { prisma } from '../lib/prisma';
-import fs from 'fs';
-import path from 'path';
 
 export const mergeWorker = new Worker('merge-chunks', async (job) => {
   const { sessionId } = job.data;

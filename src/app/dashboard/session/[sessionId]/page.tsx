@@ -146,7 +146,7 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
               <div className="flex gap-3 text-sm group">
                 <span className="font-mono text-[var(--text-muted)] text-xs mt-0.5">00:28</span>
                 <p className="flex-1 text-gray-300 group-hover:text-white transition-colors">
-                  Instead of updating the real DOM directly, which is slow, React compares the new virtual DOM with a snapshot of the previous one. This is called "diffing".
+                  Instead of updating the real DOM directly, which is slow, React compares the new virtual DOM with a snapshot of the previous one. This is called &quot;diffing&quot;.
                 </p>
               </div>
               {/* More transcript lines would go here */}

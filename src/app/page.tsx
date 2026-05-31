@@ -66,7 +66,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p className="text-[var(--text-muted)]">
-                  The AI adapts questions dynamically based on the candidate's previous responses and resume data, powered by deepgram and advanced LLMs.
+                  The AI adapts questions dynamically based on the candidate&apos;s previous responses and resume data, powered by deepgram and advanced LLMs.
                 </p>
               </CardContent>
             </Card>
@@ -79,7 +79,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p className="text-[var(--text-muted)]">
-                  Video and audio are captured in chunks and streamed via WebSockets, ensuring network drops don't result in lost interviews.
+                  Video and audio are captured in chunks and streamed via WebSockets, ensuring network drops don&apos;t result in lost interviews.
                 </p>
               </CardContent>
             </Card>

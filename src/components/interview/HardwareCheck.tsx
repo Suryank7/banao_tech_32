@@ -25,8 +25,8 @@ export function HardwareCheck({ onComplete }: HardwareCheckProps) {
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
-    } catch (err: any) {
-      setError(err.message || 'Could not access camera or microphone.');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Could not access camera or microphone.');
     } finally {
       setIsChecking(false);
     }
@@ -39,6 +39,7 @@ export function HardwareCheck({ onComplete }: HardwareCheckProps) {
         stream.getTracks().forEach(track => track.stop());
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleContinue = () => {
@@ -51,7 +52,7 @@ export function HardwareCheck({ onComplete }: HardwareCheckProps) {
     <Card className="max-w-xl mx-auto w-full shadow-[var(--shadow-glow)]">
       <CardHeader className="text-center">
         <CardTitle>Hardware Check</CardTitle>
-        <CardDescription>Let's make sure your camera and microphone are working.</CardDescription>
+        <CardDescription>Let&apos;s make sure your camera and microphone are working.</CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-6">

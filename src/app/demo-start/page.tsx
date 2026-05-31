@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { HardwareCheck } from '@/components/interview/HardwareCheck';
 import { useMediaRecorder } from '@/hooks/useMediaRecorder';
 import { Button } from '@/components/ui/Button';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import { Badge } from '@/components/ui/Badge';
 import { ShieldCheck, AlertCircle } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,7 +14,7 @@ export default function DemoInterviewPage() {
   const [hasStarted, setHasStarted] = useState(false);
   const [sessionId] = useState(() => uuidv4());
   
-  const socketRef = useRef<any>(null);
+  const socketRef = useRef<Socket | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   
   const { startRecording, stopRecording, isRecording } = useMediaRecorder(sessionId, socketRef);
