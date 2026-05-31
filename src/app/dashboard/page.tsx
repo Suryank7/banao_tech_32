@@ -53,22 +53,37 @@ export default function DashboardPage() {
   }, [candidates, searchQuery, filterStatus]);
 
   // Handle new invitation
-  const handleInvite = () => {
+  const handleInvite = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!newCandidate.name || !newCandidate.email || !newCandidate.role) return;
-    addCandidate(newCandidate);
+    addCandidate({ ...newCandidate, status: "Invited", nextAction: "Awaiting interview" });
     setNewCandidate({ name: "", email: "", role: "" });
     setShowInvite(false);
   };
 
+  const handleExport = () => {
+    if (candidates.length === 0) return;
+    const header = Object.keys(candidates[0]).join(",");
+    const rows = candidates.map(c => Object.values(c).join(","));
+    const csvContent = "data:text/csv;charset=utf-8," + [header, ...rows].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "interviewx_candidates.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <div className="min-h-screen flex bg-zinc-950 theme-dark">
+    <div className="min-h-screen flex bg-white dark:bg-zinc-950 transition-colors duration-300">
       <Sidebar />
 
       <main className="flex-1 p-6 lg:p-8 overflow-auto">
         {/* Header */}
         <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white mb-1">
+            <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white mb-1">
               Recruiter Dashboard
             </h1>
             <p className="text-sm text-zinc-500">
@@ -87,7 +102,7 @@ export default function DashboardPage() {
                 {filterStatus === "All" ? "Filter" : filterStatus}
               </Button>
               {showFilter && (
-                <div className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-white/10 rounded-xl shadow-2xl z-50 py-1 animate-slide-up">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl shadow-2xl z-50 py-1 animate-slide-up">
                   {["All", "Completed", "Failed", "In Progress"].map((status) => (
                     <button
                       key={status}
@@ -98,7 +113,7 @@ export default function DashboardPage() {
                       className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
                         filterStatus === status
                           ? "bg-indigo-600/10 text-indigo-400"
-                          : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                          : "text-zinc-700 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white"
                       }`}
                     >
                       {status}
@@ -108,11 +123,20 @@ export default function DashboardPage() {
               )}
             </div>
 
+            {/* Export Button */}
+            <Button
+              variant="secondary"
+              onClick={handleExport}
+              className="rounded-xl hidden sm:flex"
+            >
+              Export
+            </Button>
+
             {/* New Invitation Button */}
             <Button
               variant="default"
               onClick={() => setShowInvite(true)}
-              className="rounded-xl bg-indigo-600 hover:bg-indigo-500"
+              className="rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white"
             >
               <Plus className="w-4 h-4 mr-2" /> New Invitation
             </Button>
@@ -122,7 +146,7 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {STATS.map((stat, i) => (
-            <Card key={i} className="hover:border-white/10 transition-all duration-300 cursor-default">
+            <Card key={i} className="bg-indigo-600/5 dark:bg-zinc-900 border border-indigo-500/20 dark:border-white/10 hover:border-indigo-500/40 dark:hover:border-white/20 transition-all duration-300 cursor-default shadow-sm">
               <CardContent className="p-5">
                 <div className="flex items-center justify-between mb-3">
                   <div className={`p-2 rounded-xl ${stat.bg}`}>
@@ -133,7 +157,7 @@ export default function DashboardPage() {
                     {stat.change}
                   </div>
                 </div>
-                <p className="text-2xl font-bold text-white mb-1">{stat.value}</p>
+                <p className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">{stat.value}</p>
                 <p className="text-xs text-zinc-500">{stat.title}</p>
               </CardContent>
             </Card>
@@ -141,9 +165,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Sessions Table */}
-        <Card>
-          <CardHeader className="flex flex-row justify-between items-center">
-            <CardTitle className="text-base">Recent Sessions</CardTitle>
+        <Card className="bg-indigo-600/5 dark:bg-zinc-900 border-indigo-500/20 dark:border-white/5 shadow-sm">
+          <CardHeader className="flex flex-row justify-between items-center border-b border-indigo-500/10 dark:border-white/5 pb-4">
+            <CardTitle className="text-base text-indigo-900 dark:text-white font-semibold">Recent Sessions</CardTitle>
             <div className="relative w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
               <input
@@ -151,12 +175,12 @@ export default function DashboardPage() {
                 placeholder="Search candidates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-zinc-900 border border-white/5 rounded-xl py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:border-indigo-500 text-white placeholder-zinc-500 transition-colors"
+                className="w-full bg-white dark:bg-zinc-950 border border-indigo-500/20 dark:border-white/5 rounded-xl py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-zinc-900 dark:text-white placeholder-zinc-400 transition-colors"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -167,8 +191,8 @@ export default function DashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-white/5 text-xs text-zinc-500 uppercase tracking-widest">
-                    <th className="pb-3 font-medium px-4">Candidate</th>
+                  <tr className="border-b border-indigo-500/10 dark:border-white/5 text-xs text-indigo-600 dark:text-zinc-500 uppercase tracking-widest">
+                    <th className="pb-3 font-semibold px-4">Candidate</th>
                     <th className="pb-3 font-medium px-4">Role</th>
                     <th className="pb-3 font-medium px-4">Status</th>
                     <th className="pb-3 font-medium px-4">AI Score</th>
@@ -176,7 +200,7 @@ export default function DashboardPage() {
                     <th className="pb-3 font-medium px-4 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-black/5 dark:divide-white/5">
                   {filteredSessions.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-12 text-center text-zinc-500 text-sm">
@@ -187,20 +211,20 @@ export default function DashboardPage() {
                     filteredSessions.map((session) => (
                       <tr
                         key={session.id}
-                        className="hover:bg-white/[0.02] transition-colors group"
+                        className="hover:bg-indigo-600/5 dark:hover:bg-white/[0.02] transition-colors group"
                       >
                         <td className="py-4 px-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                            <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-md shadow-indigo-600/20">
                               {session.avatar}
                             </div>
                             <div>
-                              <p className="font-medium text-white text-sm">{session.name}</p>
+                              <p className="font-medium text-zinc-900 dark:text-white text-sm">{session.name}</p>
                               <p className="text-xs text-zinc-500">{session.email}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="py-4 px-4 text-zinc-400 text-sm">{session.role}</td>
+                        <td className="py-4 px-4 text-zinc-600 dark:text-zinc-400 text-sm">{session.role}</td>
                         <td className="py-4 px-4">
                           <Badge
                             variant={
@@ -243,7 +267,7 @@ export default function DashboardPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg text-indigo-600 dark:text-white hover:bg-indigo-600/10 dark:hover:bg-white/10"
                             >
                               Review <ChevronRight className="w-4 h-4 ml-1" />
                             </Button>
@@ -260,53 +284,45 @@ export default function DashboardPage() {
       </main>
 
       {/* New Invitation Modal */}
-      <Modal isOpen={showInvite} onClose={() => setShowInvite(false)} title="Invite New Candidate">
-        <div className="space-y-4">
+      <Modal isOpen={showInvite} onClose={() => setShowInvite(false)} title="Send New Invitation">
+        <form onSubmit={handleInvite} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
-              <User className="w-3 h-3 inline mr-1" /> Full Name
-            </label>
-            <input
-              type="text"
-              value={newCandidate.name}
-              onChange={(e) => setNewCandidate({ ...newCandidate, name: e.target.value })}
-              placeholder="John Doe"
-              className="w-full px-4 py-2.5 bg-zinc-800 border border-white/5 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500 text-sm"
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Candidate Name</label>
+            <input 
+              required 
+              value={newCandidate.name} 
+              onChange={e => setNewCandidate({...newCandidate, name: e.target.value})} 
+              type="text" 
+              className="w-full bg-transparent border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 text-zinc-900 dark:text-white" 
+              placeholder="e.g. Alex Johnson" 
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
-              <Mail className="w-3 h-3 inline mr-1" /> Email
-            </label>
-            <input
-              type="email"
-              value={newCandidate.email}
-              onChange={(e) => setNewCandidate({ ...newCandidate, email: e.target.value })}
-              placeholder="john@company.com"
-              className="w-full px-4 py-2.5 bg-zinc-800 border border-white/5 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500 text-sm"
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Email Address</label>
+            <input 
+              required 
+              value={newCandidate.email} 
+              onChange={e => setNewCandidate({...newCandidate, email: e.target.value})} 
+              type="email" 
+              className="w-full bg-transparent border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 text-zinc-900 dark:text-white" 
+              placeholder="alex@example.com" 
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
-              <Briefcase className="w-3 h-3 inline mr-1" /> Role
-            </label>
-            <input
-              type="text"
-              value={newCandidate.role}
-              onChange={(e) => setNewCandidate({ ...newCandidate, role: e.target.value })}
-              placeholder="Frontend Engineer"
-              className="w-full px-4 py-2.5 bg-zinc-800 border border-white/5 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500 text-sm"
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Target Role</label>
+            <input 
+              required 
+              value={newCandidate.role} 
+              onChange={e => setNewCandidate({...newCandidate, role: e.target.value})} 
+              type="text" 
+              className="w-full bg-transparent border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 text-zinc-900 dark:text-white" 
+              placeholder="e.g. Senior Frontend Engineer" 
             />
           </div>
-          <div className="flex gap-3 pt-4">
-            <Button variant="secondary" onClick={() => setShowInvite(false)} className="flex-1 rounded-xl">
-              Cancel
-            </Button>
-            <Button variant="default" onClick={handleInvite} className="flex-1 rounded-xl bg-indigo-600 hover:bg-indigo-500">
-              Send Invitation
-            </Button>
-          </div>
-        </div>
+          <button type="submit" className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold mt-4 transition-colors">
+            Send Invitation
+          </button>
+        </form>
       </Modal>
     </div>
   );

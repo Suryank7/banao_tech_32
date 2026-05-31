@@ -48,19 +48,9 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
   
   const focusAreas = candidate ? getFocusAreas(candidate) : [];
 
-  // Try to load video from local storage
+  // Natively stream video from the API instead of fetching a blob into memory
   useEffect(() => {
-    fetch(`/api/video/${resolvedParams.sessionId}`)
-      .then((res) => {
-        if (res.ok) return res.blob();
-        return null;
-      })
-      .then((blob) => {
-        if (blob && blob.size > 0) {
-          setVideoSrc(URL.createObjectURL(blob));
-        }
-      })
-      .catch(() => {});
+    setVideoSrc(`/api/video/${resolvedParams.sessionId}`);
   }, [resolvedParams.sessionId]);
 
   if (!candidate) return <div className="p-8 text-white">Loading candidate...</div>;
@@ -74,18 +64,18 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
   };
 
   return (
-    <main className="min-h-screen flex flex-col p-4 lg:p-8 bg-zinc-950 theme-dark font-sans">
+    <main className="min-h-screen flex flex-col p-4 lg:p-8 bg-white dark:bg-zinc-950 transition-colors duration-300 font-sans">
       {/* Header */}
       <header className="flex justify-between items-center mb-8 max-w-[1600px] mx-auto w-full">
         <div className="flex items-center gap-6">
           <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="rounded-full hover:bg-zinc-800">
-              <ArrowLeft className="w-5 h-5 text-zinc-400" />
+            <Button variant="ghost" size="icon" className="rounded-full hover:bg-black/5 dark:hover:bg-zinc-800">
+              <ArrowLeft className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
             </Button>
           </Link>
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-2xl font-semibold tracking-tight text-white">{candidate.name}</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white">{candidate.name}</h1>
               <Badge variant={candidate.status === "Completed" ? "success" : candidate.status === "Failed" ? "destructive" : "secondary"} className="px-2 py-0.5 text-[10px] uppercase tracking-widest font-bold">
                 {candidate.status}
               </Badge>
@@ -124,7 +114,7 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
         {/* Left Column */}
         <div className="lg:col-span-7 flex flex-col gap-6">
           {/* Video Player */}
-          <Card className="p-0 overflow-hidden border-white/5 bg-zinc-900/20 shadow-2xl">
+          <Card className="p-0 overflow-hidden border border-indigo-500/20 dark:border-white/5 bg-indigo-600/5 dark:bg-zinc-900/20 shadow-sm dark:shadow-2xl">
             <div className="aspect-video bg-black relative flex items-center justify-center">
               {videoSrc ? (
                 <video ref={videoRef} src={videoSrc} className="w-full h-full object-cover" />
@@ -137,13 +127,13 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
                 className="absolute inset-0 flex items-center justify-center cursor-pointer"
                 onClick={togglePlay}
               >
-                <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 hover:scale-105 transition-all shadow-lg">
+                <div className="w-16 h-16 rounded-full bg-black/10 dark:bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:scale-105 transition-all shadow-lg">
                   {isPlaying ? <Pause className="w-6 h-6 text-white" /> : <Play className="w-6 h-6 text-white ml-1" />}
                 </div>
               </div>
             </div>
-            <div className="p-4 bg-zinc-900/50 flex items-center gap-4">
-              <div className="w-full h-1 bg-zinc-800 rounded-full relative overflow-hidden">
+            <div className="p-4 bg-zinc-100 dark:bg-zinc-900/50 flex items-center gap-4">
+              <div className="w-full h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full relative overflow-hidden">
                 <div className="absolute left-0 top-0 h-full bg-indigo-500 rounded-full w-1/3 shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
               </div>
               <span className="text-xs font-mono text-zinc-500 tracking-wider whitespace-nowrap">05:24 / 15:00</span>
@@ -151,9 +141,9 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
           </Card>
 
           {/* Proctoring Timeline */}
-          <Card className="border-white/5 bg-zinc-900/20">
+          <Card className="border border-indigo-500/20 dark:border-white/5 bg-indigo-600/5 dark:bg-zinc-900/20 shadow-sm">
             <CardHeader className="pb-4">
-              <CardTitle className="text-sm text-zinc-400 flex items-center gap-2 uppercase tracking-widest">
+              <CardTitle className="text-sm text-indigo-900 dark:text-zinc-400 flex items-center gap-2 uppercase tracking-widest">
                 <AlertTriangle className="w-4 h-4 text-amber-500/70" /> Proctoring Timeline ({candidate.proctoring.length} events)
               </CardTitle>
             </CardHeader>
@@ -178,11 +168,11 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
 
           {/* Focus Areas (Image 5 inspired) */}
           <div className="grid grid-cols-2 gap-4">
-            <Card className="border-white/5 bg-zinc-900/20">
+            <Card className="border border-indigo-500/20 dark:border-white/5 bg-indigo-600/5 dark:bg-zinc-900/20 shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm text-zinc-400 flex items-center justify-between">
+                <CardTitle className="text-sm text-indigo-900 dark:text-zinc-400 flex items-center justify-between">
                   Focus Areas
-                  <span className="text-xs text-zinc-600 cursor-pointer hover:text-zinc-400">See all &gt;</span>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-600 cursor-pointer hover:text-zinc-800 dark:hover:text-zinc-400">See all &gt;</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -199,8 +189,8 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
                       <tr key={i}>
                         <td className="py-3">
                           <div className="flex items-center gap-2">
-                            <f.icon className="w-4 h-4 text-zinc-500" />
-                            <span className="text-sm text-zinc-300 font-medium">{f.name}</span>
+                            <f.icon className="w-4 h-4 text-indigo-500 dark:text-zinc-500" />
+                            <span className="text-sm text-zinc-800 dark:text-zinc-300 font-medium">{f.name}</span>
                           </div>
                         </td>
                         <td className="py-3">
@@ -223,9 +213,9 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
             </Card>
 
             {/* Score Timeline */}
-            <Card className="border-white/5 bg-zinc-900/20">
+            <Card className="border border-indigo-500/20 dark:border-white/5 bg-indigo-600/5 dark:bg-zinc-900/20 shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm text-zinc-400">Score Progression</CardTitle>
+                <CardTitle className="text-sm text-indigo-900 dark:text-zinc-400">Score Progression</CardTitle>
               </CardHeader>
               <CardContent>
                 <LineChart
@@ -242,32 +232,32 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
         {/* Right Column */}
         <div className="lg:col-span-5 flex flex-col gap-6">
           {/* AI Evaluation */}
-          <Card className="border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.05] to-transparent shadow-xl">
+          <Card className="border border-indigo-500/20 bg-indigo-600/5 dark:bg-gradient-to-b dark:from-indigo-500/[0.05] dark:to-transparent shadow-sm dark:shadow-xl">
             <CardHeader className="pb-4">
-              <CardTitle className="text-sm text-indigo-400 uppercase tracking-widest flex items-center justify-between">
+              <CardTitle className="text-sm text-indigo-700 dark:text-indigo-400 uppercase tracking-widest flex items-center justify-between">
                 AI Evaluation
-                <span className="text-2xl font-light text-white tracking-tighter normal-case">
+                <span className="text-2xl font-light text-zinc-900 dark:text-white tracking-tighter normal-case">
                   {candidate.overallScore}<span className="text-zinc-500 text-lg">/100</span>
                 </span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-3 gap-3">
-                <div className="p-4 bg-white/[0.02] rounded-2xl border border-white/5 text-center">
+                <div className="p-4 bg-zinc-50 dark:bg-white/[0.02] rounded-2xl border border-zinc-100 dark:border-white/5 text-center">
                   <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-wider mb-1">Technical</p>
-                  <p className={`text-3xl font-extralight tracking-tighter ${candidate.technicalScore >= 70 ? "text-emerald-400" : "text-red-400"}`}>
+                  <p className={`text-3xl font-extralight tracking-tighter ${candidate.technicalScore >= 70 ? "text-emerald-500 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}`}>
                     {candidate.technicalScore}%
                   </p>
                 </div>
-                <div className="p-4 bg-white/[0.02] rounded-2xl border border-white/5 text-center">
+                <div className="p-4 bg-zinc-50 dark:bg-white/[0.02] rounded-2xl border border-zinc-100 dark:border-white/5 text-center">
                   <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-wider mb-1">Communication</p>
-                  <p className={`text-3xl font-extralight tracking-tighter ${candidate.communicationScore >= 70 ? "text-indigo-400" : "text-red-400"}`}>
+                  <p className={`text-3xl font-extralight tracking-tighter ${candidate.communicationScore >= 70 ? "text-indigo-500 dark:text-indigo-400" : "text-red-500 dark:text-red-400"}`}>
                     {candidate.communicationScore}%
                   </p>
                 </div>
-                <div className="p-4 bg-white/[0.02] rounded-2xl border border-white/5 text-center">
+                <div className="p-4 bg-zinc-50 dark:bg-white/[0.02] rounded-2xl border border-zinc-100 dark:border-white/5 text-center">
                   <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-wider mb-1">Problem Solving</p>
-                  <p className={`text-3xl font-extralight tracking-tighter ${candidate.problemSolvingScore >= 70 ? "text-purple-400" : "text-red-400"}`}>
+                  <p className={`text-3xl font-extralight tracking-tighter ${candidate.problemSolvingScore >= 70 ? "text-purple-500 dark:text-purple-400" : "text-red-500 dark:text-red-400"}`}>
                     {candidate.problemSolvingScore}%
                   </p>
                 </div>
@@ -276,10 +266,10 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
               {/* Strengths & Weaknesses */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h4 className="text-[10px] font-semibold text-emerald-400 uppercase tracking-widest mb-2">Strengths</h4>
+                  <h4 className="text-[10px] font-semibold text-emerald-500 dark:text-emerald-400 uppercase tracking-widest mb-2">Strengths</h4>
                   <ul className="space-y-1.5">
                     {candidate.strengths.map((s, i) => (
-                      <li key={i} className="flex items-start gap-2 text-xs text-zinc-400">
+                      <li key={i} className="flex items-start gap-2 text-xs text-zinc-600 dark:text-zinc-400">
                         <CheckCircle className="w-3 h-3 text-emerald-500 mt-0.5 shrink-0" />
                         {s}
                       </li>
@@ -287,10 +277,10 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-[10px] font-semibold text-amber-400 uppercase tracking-widest mb-2">Areas to Improve</h4>
+                  <h4 className="text-[10px] font-semibold text-amber-500 dark:text-amber-400 uppercase tracking-widest mb-2">Areas to Improve</h4>
                   <ul className="space-y-1.5">
                     {candidate.weaknesses.map((w, i) => (
-                      <li key={i} className="flex items-start gap-2 text-xs text-zinc-400">
+                      <li key={i} className="flex items-start gap-2 text-xs text-zinc-600 dark:text-zinc-400">
                         <AlertTriangle className="w-3 h-3 text-amber-500 mt-0.5 shrink-0" />
                         {w}
                       </li>
@@ -300,9 +290,9 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
               </div>
 
               <div>
-                <h4 className="font-semibold mb-2 text-xs text-zinc-300 uppercase tracking-widest">Recommendation</h4>
-                <p className="text-sm leading-relaxed text-zinc-400">{candidate.recommendation}</p>
-                <div className={`mt-3 p-3 rounded-lg text-sm font-medium ${candidate.overallScore >= 70 ? "bg-indigo-500/10 border border-indigo-500/20 text-indigo-300" : "bg-red-500/10 border border-red-500/20 text-red-300"}`}>
+                <h4 className="font-semibold mb-2 text-xs text-zinc-900 dark:text-zinc-300 uppercase tracking-widest">Recommendation</h4>
+                <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{candidate.recommendation}</p>
+                <div className={`mt-3 p-3 rounded-lg text-sm font-medium ${candidate.overallScore >= 70 ? "bg-indigo-100 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-300" : "bg-red-100 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-300"}`}>
                   → {candidate.nextAction}
                 </div>
               </div>
@@ -310,23 +300,23 @@ export default function SessionDetail({ params }: { params: Promise<{ sessionId:
           </Card>
 
           {/* Transcript */}
-          <Card className="flex-1 flex flex-col min-h-[400px] border-white/5 bg-zinc-900/20">
-            <CardHeader className="pb-4 border-b border-white/5">
-              <CardTitle className="text-sm text-zinc-400 uppercase tracking-widest">
+          <Card className="flex-1 flex flex-col min-h-[400px] border border-indigo-500/20 dark:border-white/5 bg-indigo-600/5 dark:bg-zinc-900/20 shadow-sm">
+            <CardHeader className="pb-4 border-b border-indigo-500/10 dark:border-white/5">
+              <CardTitle className="text-sm text-indigo-900 dark:text-zinc-400 uppercase tracking-widest">
                 Interview Transcript
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 overflow-y-auto pt-6 pr-4 space-y-6">
               {candidate.transcript.map((t, i) => (
                 <div key={i}>
-                  <div className="relative pl-4 border-l border-indigo-500/50 mb-3">
+                  <div className="relative pl-4 border-l border-indigo-300 dark:border-indigo-500/50 mb-3">
                     <div className="absolute w-2 h-2 rounded-full bg-indigo-500 -left-[4.5px] top-1.5 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-                    <p className="text-xs text-indigo-400 font-semibold uppercase tracking-wider">Question {i + 1}</p>
-                    <p className="text-sm text-zinc-200 font-medium mt-1">{t.question}</p>
+                    <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold uppercase tracking-wider">Question {i + 1}</p>
+                    <p className="text-sm text-zinc-900 dark:text-zinc-200 font-medium mt-1">{t.question}</p>
                   </div>
                   <div className="flex gap-4 text-sm group">
-                    <span className="font-mono text-zinc-600 text-xs mt-1 w-10">{t.timestamp}</span>
-                    <p className="flex-1 text-zinc-400 group-hover:text-zinc-200 transition-colors leading-relaxed">
+                    <span className="font-mono text-zinc-500 dark:text-zinc-600 text-xs mt-1 w-10">{t.timestamp}</span>
+                    <p className="flex-1 text-zinc-700 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors leading-relaxed">
                       {t.answer}
                     </p>
                   </div>

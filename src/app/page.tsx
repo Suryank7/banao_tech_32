@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Video, Sparkles, ChevronDown, Zap, MessageSquare, ArrowRight, Settings, BarChart } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Video, Sparkles, ChevronDown, Zap, MessageSquare, ArrowRight, Settings, BarChart, Sun, Moon } from "lucide-react";
 
 // ===== FAQ Data =====
 const FAQS = [
@@ -70,27 +72,41 @@ const FEATURES = [
 
 export default function Home() {
   const [openFaq, setOpenFaq] = useState(0);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
-    <div className="theme-warm min-h-screen">
+    <div className="min-h-screen bg-cream-50 dark:bg-zinc-950 transition-colors duration-300">
       {/* ===== NAVBAR ===== */}
-      <header className="sticky top-0 z-50 bg-cream-50/80 backdrop-blur-xl border-b border-black/5">
+      <header className="sticky top-0 z-50 bg-cream-50/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-black/5 dark:border-white/5">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-forest-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-forest-600 dark:bg-indigo-600 flex items-center justify-center">
               <Video className="w-4 h-4 text-white" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-gray-900">InterviewX</span>
+            <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">InterviewX</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-            <Link href="/demo-start" className="hover:text-gray-900 transition-colors">AI Interview</Link>
-            <Link href="/analytics" className="hover:text-gray-900 transition-colors">Features</Link>
-            <Link href="/dashboard" className="hover:text-gray-900 transition-colors">For Recruiters</Link>
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600 dark:text-zinc-400">
+            <Link href="/demo-start" className="hover:text-gray-900 dark:hover:text-white transition-colors">AI Interview</Link>
+            <Link href="/analytics" className="hover:text-gray-900 dark:hover:text-white transition-colors">Features</Link>
+            <Link href="/dashboard" className="hover:text-gray-900 dark:hover:text-white transition-colors">For Recruiters</Link>
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-4 py-2">
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-gray-600 dark:text-zinc-400"
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+            )}
+            <Link href="/login" className="text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white transition-colors px-4 py-2">
               Log In
             </Link>
             <Link
@@ -113,15 +129,15 @@ export default function Home() {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tight leading-[1.1] max-w-4xl mx-auto mb-8">
+          <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1] max-w-4xl mx-auto mb-8">
             AI Interviewer get your dream top{" "}
             <span className="relative inline-block">
               <span className="relative z-10">talent.</span>
-              <span className="absolute bottom-1 left-0 w-full h-4 bg-yellow-300 -z-0 rounded-sm" />
+              <span className="absolute bottom-1 left-0 w-full h-4 bg-yellow-300 dark:bg-indigo-500/50 -z-0 rounded-sm" />
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-lg md:text-xl text-gray-500 dark:text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed">
             Configure custom interview questions, integrate with your ATS via webhooks, and get comprehensive performance analysis on every candidate. Evaluate everyone fairly while focusing your time on top talent.
           </p>
 
@@ -151,25 +167,20 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Hero Video Preview */}
-        <div className="max-w-4xl mx-auto mt-16">
-          <div className="relative rounded-3xl overflow-hidden border-4 border-orange-400/80 shadow-2xl shadow-orange-400/10 aspect-video bg-zinc-900">
-            <video 
-              autoPlay 
-              loop 
-              muted 
-              playsInline 
-              className="w-full h-full object-cover"
-            >
-              {/* Sample interview video file */}
-              <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" type="video/mp4" />
-            </video>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        {/* Hero Illustration */}
+        <div className="max-w-4xl mx-auto mt-16 px-4">
+          <div className="relative rounded-3xl overflow-hidden border-4 border-orange-400/80 dark:border-indigo-500/80 shadow-2xl shadow-orange-400/10 dark:shadow-indigo-500/10 aspect-video bg-zinc-900">
+            <img 
+              src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2000&auto=format&fit=crop" 
+              alt="Professional AI Interview Platform" 
+              className="object-cover object-center w-full h-full"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
             
             {/* Live Indicator overlay */}
-            <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10">
-              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-xs font-medium text-white">REC</span>
+            <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 border border-white/10 shadow-lg">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
+              <span className="text-xs font-bold tracking-widest text-white uppercase">Live AI Interview</span>
             </div>
           </div>
         </div>

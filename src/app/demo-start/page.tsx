@@ -17,11 +17,13 @@ import {
   ArrowRight,
   Home,
   SkipForward,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
+import { useData } from "@/context/DataContext";
 import { useRouter } from "next/navigation";
 
 const QUESTIONS = [
@@ -56,7 +58,15 @@ export default function DemoInterviewPage() {
   const [isMuted, setIsMuted] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [sessionId] = useState(() => uuidv4());
+  
+  // Pre-interview modal state
+  const [isDetailsFilled, setIsDetailsFilled] = useState(false);
+  const [candidateName, setCandidateName] = useState("");
+  const [candidateEmail, setCandidateEmail] = useState("");
+  const [candidateRole, setCandidateRole] = useState("Software Engineer");
+
   const { login } = useAuth();
+  const { addCandidate } = useData();
   const router = useRouter();
 
   const socketRef = useRef<Socket | null>(null);
@@ -258,8 +268,73 @@ export default function DemoInterviewPage() {
   }
 
   // ===== Active Interview UI =====
+  const handleDetailsSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!candidateName || !candidateEmail) return;
+
+    // Create the candidate in our Data Context using the active sessionId
+    addCandidate({
+      id: sessionId,
+      name: candidateName,
+      role: candidateRole,
+      status: "Completed", // They are about to complete it
+      score: 0,
+      time: "Just now",
+      avatar: candidateName.charAt(0).toUpperCase(),
+      nextAction: "Evaluate",
+      email: candidateEmail
+    });
+
+    setIsDetailsFilled(true);
+    login("CANDIDATE");
+  };
+
   return (
-    <main className="min-h-screen flex flex-col bg-zinc-950 theme-dark">
+    <div className="min-h-screen bg-zinc-950 text-white font-sans overflow-hidden">
+      
+      {/* ===== Candidate Details Modal ===== */}
+      <AnimatePresence>
+        {!isDetailsFilled && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-zinc-900 border border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+            >
+              <div className="flex items-center justify-center w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-xl mb-6 mx-auto">
+                <Settings className="w-6 h-6" />
+              </div>
+              <h2 className="text-2xl font-bold text-center mb-2">Welcome to your Interview</h2>
+              <p className="text-zinc-400 text-sm text-center mb-8">Please enter your details to begin the AI interview session.</p>
+
+              <form onSubmit={handleDetailsSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">Full Name</label>
+                  <input required value={candidateName} onChange={e => setCandidateName(e.target.value)} type="text" className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500" placeholder="John Doe" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">Email Address</label>
+                  <input required value={candidateEmail} onChange={e => setCandidateEmail(e.target.value)} type="email" className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500" placeholder="john@example.com" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">Position Applied For</label>
+                  <input required value={candidateRole} onChange={e => setCandidateRole(e.target.value)} type="text" className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500" placeholder="e.g. Frontend Developer" />
+                </div>
+                
+                <button type="submit" className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold mt-4 transition-colors">
+                  Start Interview Setup
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="max-w-6xl mx-auto px-4 py-6">
       {/* Top Bar */}
       <div className="flex items-center justify-between px-6 py-3 border-b border-white/5 bg-zinc-950/80 backdrop-blur-xl">
         <div className="flex items-center gap-3">
@@ -421,6 +496,7 @@ export default function DemoInterviewPage() {
           </div>
         </div>
       </div>
-    </main>
+      </div>
+    </div>
   );
 }

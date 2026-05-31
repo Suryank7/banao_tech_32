@@ -10,7 +10,8 @@ export async function GET(
   const chunksDir = path.join(process.cwd(), ".local-storage", sessionId, "chunks");
 
   if (!fs.existsSync(chunksDir)) {
-    return new NextResponse("No video found", { status: 404 });
+    // If no real chunks exist (e.g., mock candidate data), return a sample stock video URL
+    return NextResponse.redirect("https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4");
   }
 
   // Read all chunk files and concatenate them
@@ -20,7 +21,8 @@ export async function GET(
     .sort();
 
   if (files.length === 0) {
-    return new NextResponse("No video chunks found", { status: 404 });
+    // Return sample stock video if directory exists but is empty
+    return NextResponse.redirect("https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4");
   }
 
   // Concatenate all chunks into a single buffer
