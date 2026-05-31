@@ -170,10 +170,12 @@ export default function Home() {
         {/* Hero Illustration */}
         <div className="max-w-4xl mx-auto mt-16 px-4">
           <div className="relative rounded-3xl overflow-hidden border-4 border-orange-400/80 dark:border-indigo-500/80 shadow-2xl shadow-orange-400/10 dark:shadow-indigo-500/10 aspect-video bg-zinc-900">
-            <img 
+            <Image 
               src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2000&auto=format&fit=crop" 
               alt="Professional AI Interview Platform" 
-              className="object-cover object-center w-full h-full"
+              fill
+              unoptimized
+              className="object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
             

@@ -17,10 +17,7 @@ import {
   Plus,
   TrendingUp,
   TrendingDown,
-  X,
-  Mail,
-  Briefcase,
-  User,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { useData } from "@/context/DataContext";

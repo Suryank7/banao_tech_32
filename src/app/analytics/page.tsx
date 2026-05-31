@@ -94,7 +94,7 @@ export default function AnalyticsPage() {
       name: leadName,
       role: leadRole,
       email: leadEmail,
-      status: "Invited",
+      status: "Pending",
       score: 0,
       time: "Just now",
       avatar: leadName.charAt(0).toUpperCase(),
